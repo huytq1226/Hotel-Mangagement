@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Thêm CSS cho datepicker vào phần head -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+<!-- Form tìm kiếm -->
+<div class="search-section">
+    <h3>Tìm theo ngày</h3>
+    <form method="POST" action="{% url 'book' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col s6">
+                <label>Ngày nhận phòng</label>
+                <input type="text" class="datepicker" name="start_date" required>
+            </div>
+            <div class="col s6">
+                <label>Ngày trả phòng</label>
+                <input type="text" class="datepicker" name="end_date" required>
+            </div>
+        </div>
+        <button class="btn waves-effect waves-light" type="submit">TÌM PHÒNG TRỐNG</button>
+    </form>
+</div>
+
+<!-- Phần hiển thị danh sách phòng -->
+<div class="room-list">
+    <!-- Your existing room list code -->
+</div>
+
+<!-- Thêm JavaScript cho datepicker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo datepicker
+    $('.datepicker').datepicker({
+        format: 'dd/M/yyyy',
+        autoclose: true,
+        startDate: 'today',
+        todayHighlight: true
+    });
+});
+</script>
+
+<style>
+.search-section {
+    background: #f8f9fa;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+}
+.datepicker {
+    z-index: 1600 !important;
+}
+.datepicker table tr td.today {
+    background-color: #2196F3 !important;
+    color: white !important;
+}
+.datepicker table tr td.active {
+    background-color: #2196F3 !important;
+}
+</style>
+
+{% endblock %} 

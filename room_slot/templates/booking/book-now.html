@@ -1,0 +1,259 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% block content %}
+
+<div class="container py-4">
+    <h2 class="text-center mb-4">Xác nhận đặt phòng</h2>
+    
+    <div class="row">
+        <!-- Thông tin phòng -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Thông tin phòng</h4>
+                </div>
+                <div class="card-body">
+                    <div class="room-info mb-4">
+                        <h4>Thông tin phòng</h4>
+                        <p><strong>Loại phòng:</strong> {{ data.room_type }}</p>
+                        <p><strong>Số phòng:</strong> {{ room_no }}</p>
+                        <p><strong>Quản lý:</strong> {{ roomManager }}</p>
+                        
+                        <!-- Phần rating -->
+                        <div class="rating-section mt-3">
+                            <h5>Đánh giá phòng</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="stars me-2">
+                                    {% for i in '12345'|make_list %}
+                                        {% if forloop.counter <= rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-text">({{ rating|floatformat:1 }}/5 từ {{ rating_count }} đánh giá)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin đặt phòng -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Chi tiết đặt phòng</h4>
+                </div>
+                <div class="card-body">
+                    <div class="booking-details">
+                        <p><strong>Số đêm:</strong> {{ no_of_days }}</p>
+                        <p><strong>Ngày nhận phòng:</strong> {{ start }}</p>
+                        <p><strong>Ngày trả phòng:</strong> {{ end }}</p>
+                        <hr>
+                        <div class="price-details">
+                            <p><strong>Tổng tiền:</strong> <span class="text-primary">₫{{ bill|floatformat:0 }}</span></p>
+                            <p><strong>Đặt cọc (50%):</strong> <span class="text-success">₫{{ deposit|floatformat:0 }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phương thức thanh toán -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Phương thức thanh toán</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'book_confirm' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="online" value="online" checked>
+                                <label class="form-check-label" for="online">Thanh toán online (Đặt cọc 50%)</label>
+                            </div>
+                            <div class="payment-gateways ms-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_gateway" id="momo" value="momo" checked>
+                                    <label class="form-check-label" for="momo">MoMo</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_gateway" id="vnpay" value="vnpay">
+                                    <label class="form-check-label" for="vnpay">VNPay</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_gateway" id="zalopay" value="zalopay">
+                                    <label class="form-check-label" for="zalopay">ZaloPay</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="offline" value="offline">
+                                <label class="form-check-label" for="offline">Thanh toán tại khách sạn</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Xác nhận đặt phòng</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card-header {
+        border-bottom: none;
+        padding: 1rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .star {
+        color: #ddd;
+        font-size: 20px;
+        padding: 0 2px;
+        transition: color 0.2s;
+    }
+    .star.active {
+        color: #ffc107;
+    }
+    .rate-now .star {
+        cursor: pointer;
+    }
+    .rate-now .star:hover,
+    .rate-now .star:hover ~ .star {
+        color: #ffc107;
+    }
+    .rating-text {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .price-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    .price-details p:last-child {
+        margin-bottom: 0;
+    }
+    .payment-gateways {
+        border-left: 2px solid #dee2e6;
+    }
+    .btn-primary {
+        padding: 0.8rem;
+        font-weight: 500;
+    }
+    .rating-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .stars i {
+        font-size: 18px;
+        margin-right: 2px;
+    }
+    .rating-text {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo select
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+
+    // Xử lý hiển thị/ẩn phần thanh toán online
+    var paymentSection = document.getElementById('online-payment-section');
+    var paymentMethods = document.getElementsByName('payment_method');
+    
+    function togglePaymentSection() {
+        var selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        paymentSection.style.display = selectedMethod === 'online' ? 'block' : 'none';
+        
+        // Thêm/xóa required cho select khi ẩn/hiện
+        var paymentGateway = document.querySelector('select[name="payment_gateway"]');
+        if (paymentGateway) {
+            paymentGateway.required = (selectedMethod === 'online');
+        }
+    }
+
+    paymentMethods.forEach(function(method) {
+        method.addEventListener('change', togglePaymentSection);
+    });
+
+    // Khởi tạo hiển thị
+    togglePaymentSection();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rate-now .star');
+    const ratingSection = document.querySelector('.star-rating');
+    if (!ratingSection) return;
+    
+    const roomId = ratingSection.dataset.roomId;
+    
+    stars.forEach(star => {
+        star.addEventListener('click', async () => {
+            const rating = star.dataset.rating;
+            const formData = new FormData();
+            formData.append('rating', rating);
+            
+            try {
+                const response = await fetch(`/rate-room/${roomId}/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Cập nhật hiển thị rating
+                    updateStars(rating);
+                    location.reload(); // Tải lại trang để cập nhật rating trung bình
+                } else {
+                    alert(data.error || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra');
+            }
+        });
+    });
+    
+    function updateStars(rating) {
+        stars.forEach(star => {
+            const starRating = parseInt(star.dataset.rating);
+            star.classList.toggle('active', starRating <= rating);
+        });
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

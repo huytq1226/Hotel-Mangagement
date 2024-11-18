@@ -1,0 +1,88 @@
+{% extends 'base/base.html'%}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css?family=Oregano&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css?family=Freckle+Face&display=swap" rel="stylesheet">
+
+<div class="row">
+    <div class="container">
+        {% if data %}
+    <h3 class="center" style="font-family: 'Oregano', cursive;margin-bottom:7%;margin-top:5%" >Chỉ còn 1 bước nữa...</h3>
+
+        {% for  room in  data %}
+           <div class="col l4 m6 s12">
+            <div class="card">
+                <div class="card-image">
+                    {% if room.room_image %}
+                        <img src="{{ room.room_image.url }}" alt="{{ room.room_type }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'default_room.jpg' %}" alt="Default room image" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <span class="card-title">{{ room.hotel_name }}</span>
+                    <p>
+                        <strong>Phòng:</strong> {{ room.room_type }}<br>
+                        <strong>Số phòng:</strong> {{ room.room_no }}<br>
+                        <strong>Giá:</strong> ₫{{ room.price|floatformat:0|intcomma }}/đêm
+                    </p>
+                </div>
+                <div class="card-action">
+                    <a href="{% url 'book_now' room.id %}" class="btn waves-effect waves-light">Đặt phòng</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="card-panel">
+            <p class="center">
+                <i class="material-icons large brown-text">sentiment_very_dissatisfied</i>
+            </p>
+            <h3 style="font-family: 'Freckle Face', cursive;">
+                Sorry No room available for the given days.
+            </h3>
+            <h4 style="font-family: 'Oregano', cursive;">
+                Select other days <a href="{% url 'index' %}" class="btn blue white-text" style="font-size:1.5rem">Here</a>
+            </h4>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.card {
+    margin: 10px 0;
+    transition: transform 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.card-content {
+    padding: 20px;
+}
+.card-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.card-action {
+    padding: 15px 20px;
+    text-align: center;
+}
+.btn {
+    width: 100%;
+    background-color: #2196F3;
+}
+.btn:hover {
+    background-color: #1976D2;
+}
+</style>
+{% endblock %}

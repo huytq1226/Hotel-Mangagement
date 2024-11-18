@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Phần sắp xếp -->
+    <div class="sorting-controls mb-4">
+        <h3>Danh sách phòng trống</h3>
+        <div class="btn-group">
+            <a href="?sort=room_type&order={% if current_sort == 'room_type' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+               class="btn btn-outline-primary {% if current_sort == 'room_type' %}active{% endif %}">
+                Tên phòng 
+                {% if current_sort == 'room_type' %}
+                    {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                {% endif %}
+            </a>
+            <a href="?sort=price&order={% if current_sort == 'price' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+               class="btn btn-outline-primary {% if current_sort == 'price' %}active{% endif %}">
+                Giá phòng
+                {% if current_sort == 'price' %}
+                    {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Danh sách phòng -->
+    <div class="row">
+        {% for room in rooms %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if room.room_image %}
+                <img src="{{ room.room_image.url }}" class="card-img-top" alt="{{ room.room_type }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ room.room_type }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ room.hotel_name }}</h6>
+                    <p class="card-text">
+                        <strong>Số phòng:</strong> {{ room.room_no }}<br>
+                        <strong>Giá:</strong> ₫{{ room.price|floatformat:0|intcomma }}/đêm
+                    </p>
+                    <a href="{% url 'book_room_page' room.id %}" class="btn btn-primary">Đặt phòng</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Không có phòng trống nào.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- CSS cho phần sắp xếp -->
+<style>
+    .sorting-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .btn-group .btn {
+        position: relative;
+    }
+    .card {
+        transition: transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    .card-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+    .btn-primary {
+        width: 100%;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %} 
