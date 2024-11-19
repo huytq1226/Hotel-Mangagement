@@ -151,6 +151,82 @@
                             </div>
                             {% endfor %}
                         </div>
+
+                        <!-- Thêm vào trong div class="reviews-section", sau phần review-list -->
+                        <div class="review-form">
+                            <h5>Gửi đánh giá của bạn</h5>
+                            <form id="review-form" onsubmit="return addNewReview(event)">
+                                <!-- Rating stars -->
+                                <div class="rating-stars">
+                                    <p>Đánh giá chung:</p>
+                                    <div class="stars">
+                                        <i class="material-icons star-rating" data-rating="1">star_border</i>
+                                        <i class="material-icons star-rating" data-rating="2">star_border</i>
+                                        <i class="material-icons star-rating" data-rating="3">star_border</i>
+                                        <i class="material-icons star-rating" data-rating="4">star_border</i>
+                                        <i class="material-icons star-rating" data-rating="5">star_border</i>
+                                    </div>
+                                </div>
+
+                                <!-- Detailed ratings -->
+                                <div class="detailed-ratings">
+                                    <div class="row">
+                                        <div class="input-field col s12 m6">
+                                            <p>Nhân viên phục vụ:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="staff-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <p>Tiện nghi:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="amenities-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12 m6">
+                                            <p>Sạch sẽ:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="cleanliness-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <p>Thoải mái:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="comfort-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12 m6">
+                                            <p>Đáng giá tiền:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="value-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <p>Địa điểm:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="location-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12 m6">
+                                            <p>WiFi miễn phí:</p>
+                                            <input type="range" min="0" max="10" value="8" class="criteria-rating" id="wifi-rating">
+                                            <span class="rating-value">8/10</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Comment input -->
+                                <div class="input-field">
+                                    <textarea id="review-comment" class="materialize-textarea" required></textarea>
+                                    <label for="review-comment">Nhận xét của bạn</label>
+                                </div>
+
+                                <button class="btn waves-effect waves-light blue" type="submit">
+                                    Gửi đánh giá
+                                    <i class="material-icons right">send</i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -273,9 +349,134 @@
 .divider {
     margin: 15px 0;
 }
+
+/* Style cho form đánh giá */
+.review-form {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.rating-stars {
+    margin: 20px 0;
+}
+
+.stars {
+    display: flex;
+    gap: 5px;
+}
+
+.star-rating {
+    cursor: pointer;
+    color: #ffd700;
+    font-size: 2rem;
+    transition: transform 0.2s;
+}
+
+.star-rating:hover {
+    transform: scale(1.2);
+}
+
+.detailed-ratings .row {
+    margin-bottom: 0;
+}
+
+.detailed-ratings p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.criteria-rating {
+    margin: 10px 0;
+}
+
+.rating-value {
+    color: #2196F3;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Style cho range input */
+input[type=range] {
+    height: 14px;
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    background: #e0e0e0;
+    border-radius: 25px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #2196F3;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7px;
+}
+
+.star-filled {
+    color: #ffd700;
+}
 </style>
 
 <script>
+// Định nghĩa hàm addNewReview ở scope toàn cục
+function addNewReview(event) {
+    event.preventDefault();
+    
+    const comment = document.getElementById('review-comment').value;
+    const starRating = document.querySelector('.star-rating.clicked')?.dataset.rating || '5';
+    
+    // Tạo review mới
+    const newReview = `
+        <div class="review-item">
+            <div class="reviewer-info">
+                <i class="material-icons circle">person</i>
+                <span class="reviewer-name">Bạn</span>
+                <span class="review-date">${new Date().toLocaleDateString('vi-VN')}</span>
+            </div>
+            <div class="review-content">
+                <p>${comment}</p>
+            </div>
+            <div class="divider"></div>
+        </div>
+    `;
+    
+    // Thêm review mới vào đầu danh sách
+    const reviewList = document.querySelector('.review-list');
+    reviewList.insertAdjacentHTML('afterbegin', newReview);
+    
+    // Reset form
+    document.getElementById('review-form').reset();
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.textContent = 'star_border';
+        star.classList.remove('clicked');
+    });
+    
+    // Reset các thanh rating
+    document.querySelectorAll('.criteria-rating').forEach(range => {
+        range.value = 8;
+        range.nextElementSibling.textContent = '8/10';
+    });
+    
+    // Hiển thị thông báo
+    M.toast({html: 'Cảm ơn bạn đã gửi đánh giá!'});
+    
+    return false;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo datepicker
     var dateInputs = document.querySelectorAll('.datepicker');
@@ -354,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${day}/${month}/${year}`;
     }
 
-    // Dữ liệu mẫu cho ratings
+    // Dữ liệu mẫu cho ratings và reviews
     const ratings = [
         { name: 'Nhân viên phục vụ', score: 9 },
         { name: 'Tiện nghi', score: 8 },
@@ -365,7 +566,6 @@ document.addEventListener('DOMContentLoaded', function() {
         { name: 'WiFi miễn phí', score: 8 }
     ];
 
-    // Dữ liệu mẫu cho reviews
     const reviews = [
         {
             name: 'Nguyễn Văn A',
@@ -379,33 +579,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // Render ratings
-    const ratingsHtml = ratings.map(rating => `
-        <div class="rating-criteria">
-            <div class="criteria-name">${rating.name}</div>
-            <div class="progress">
-                <div class="determinate" style="width: ${rating.score}0%"></div>
+    // Render ratings và reviews mẫu chỉ một lần khi trang tải
+    if (!document.querySelector('.rating-criteria')) {
+        const ratingsHtml = ratings.map(rating => `
+            <div class="rating-criteria">
+                <div class="criteria-name">${rating.name}</div>
+                <div class="progress">
+                    <div class="determinate" style="width: ${rating.score}0%"></div>
+                </div>
+                <div class="criteria-score">${rating.score}/10</div>
             </div>
-            <div class="criteria-score">${rating.score}/10</div>
-        </div>
-    `).join('');
-    document.querySelector('.col.s12.m6').innerHTML = ratingsHtml;
+        `).join('');
+        document.querySelector('.col.s12.m6').innerHTML = ratingsHtml;
+    }
 
-    // Render reviews
-    const reviewsHtml = reviews.map(review => `
-        <div class="review-item">
-            <div class="reviewer-info">
-                <i class="material-icons circle">person</i>
-                <span class="reviewer-name">${review.name}</span>
-                <span class="review-date">${review.date}</span>
+    if (!document.querySelector('.review-item')) {
+        const reviewsHtml = reviews.map(review => `
+            <div class="review-item">
+                <div class="reviewer-info">
+                    <i class="material-icons circle">person</i>
+                    <span class="reviewer-name">${review.name}</span>
+                    <span class="review-date">${review.date}</span>
+                </div>
+                <div class="review-content">
+                    <p>${review.content}</p>
+                </div>
+                <div class="divider"></div>
             </div>
-            <div class="review-content">
-                <p>${review.content}</p>
-            </div>
-            <div class="divider"></div>
-        </div>
-    `).join('');
-    document.querySelector('.review-list').innerHTML = reviewsHtml;
+        `).join('');
+        document.querySelector('.review-list').innerHTML = reviewsHtml;
+    }
+
+    // Xử lý star rating
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const rating = this.dataset.rating;
+            updateStars(rating);
+        });
+
+        star.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            document.querySelectorAll('.star-rating').forEach(s => {
+                s.classList.remove('clicked');
+            });
+            updateStars(rating);
+            this.classList.add('clicked');
+        });
+    });
+
+    document.querySelector('.stars').addEventListener('mouseleave', function() {
+        const clickedStar = document.querySelector('.star-rating.clicked');
+        if (clickedStar) {
+            updateStars(clickedStar.dataset.rating);
+        } else {
+            document.querySelectorAll('.star-rating').forEach(star => {
+                star.textContent = 'star_border';
+            });
+        }
+    });
+
+    // Xử lý range inputs
+    document.querySelectorAll('.criteria-rating').forEach(range => {
+        range.addEventListener('input', function() {
+            this.nextElementSibling.textContent = this.value + '/10';
+        });
+    });
 });
+
+function updateStars(rating) {
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.textContent = star.dataset.rating <= rating ? 'star' : 'star_border';
+    });
+}
 </script>
 {% endblock %}
