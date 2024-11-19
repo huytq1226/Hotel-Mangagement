@@ -7,7 +7,7 @@
         <p class="green-text">{{message}}</p>
         {%endif%}
     <h4 class="center" style="font-family:Stylish">Contact Us...</h4>
-    <form action="/contact-us" method="POST">
+    <form action="{% url 'contact' %}" method="POST">
         {% csrf_token %}
     <div class="input-field">
     <input type="text" name="name" id="username">
