@@ -17,7 +17,7 @@
             <div class="card">
                 <div class="card-image">
                     {% if room.room_image %}
-                        <img src="{{ room.room_image.url }}" alt="{{ room.room_type }}" style="height: 200px; object-fit: cover;">
+                        <img src="{{ room.room_image.url }}" alt="{{ room.hotel_name }}" style="height: 200px; object-fit: cover;">
                     {% else %}
                         <img src="{% static 'default_room.jpg' %}" alt="Default room image" style="height: 200px; object-fit: cover;">
                     {% endif %}

@@ -73,10 +73,15 @@ def book(request):
             is_available=True,
             no_of_days_advance__gte=no_of_days,
             start_date__lte=start_date
-        )
+        ).select_related('manager')
         
         request.session['no_of_days']=no_of_days
-        return render(request,'booking/book.html',{'data':data})
+        return render(request,'booking/book.html',{
+            'data': data,
+            'start_date': start_date,
+            'end_date': end_date,
+            'no_of_days': no_of_days
+        })
     else:
         return redirect('index')
 

@@ -14,6 +14,7 @@ class Rooms(models.Model):
     manager = models.ForeignKey(RoomManager, on_delete=models.SET_NULL, null=True)  # Người quản lý phòng
     room_no = models.CharField(max_length=5)        # Số phòng
     room_type = models.CharField(max_length=50)     # Loại phòng
+    hotel_name = models.CharField(max_length=100, default='Unknown Hotel')  # Thêm trường này
     is_available = models.BooleanField(default=True)  # Trạng thái phòng
     price = models.FloatField()                     # Giá phòng
     no_of_days_advance = models.IntegerField()      # Số ngày có thể đặt trước
@@ -25,7 +26,7 @@ class Rooms(models.Model):
         default='media/default_room.jpg'
     )
     def __str__(self):
-        return "Room No: "+str(self.room_no)
+        return f"{self.hotel_name} - Room No: {self.room_no}"
 
 # Model Booking quản lý thông tin đặt phòng
 class Booking(models.Model):
