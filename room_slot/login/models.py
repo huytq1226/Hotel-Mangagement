@@ -21,7 +21,7 @@ class RoomManager(models.Model):
     phone_no=models.CharField(max_length=50)
     gender=models.CharField(max_length=20)
     def __str__(self):
-        return "Room Manager: "+self.username
+        return f"Room Manager: {self.username}"
 
 class Revenue(models.Model):
     date = models.DateField()

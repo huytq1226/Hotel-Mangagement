@@ -5,12 +5,14 @@ from login.models import Customer, RoomManager
 import datetime
 from django.urls import reverse
 class RoomsTestCases(TestCase):
+    # Thiết lập dữ liệu test
     def setUp(self):
         RoomManager.objects.create(username='vivek')
         manager=RoomManager.objects.get(username='vivek')
         Rooms.objects.create(manager=manager,room_no=300,room_type='Deluxe',price=3000,is_available=True,no_of_days_advance=10,start_date='2020-03-20')
         Rooms.objects.create(manager=manager,room_no=301,room_type='Super Deluxe',price=5000,is_available=True,no_of_days_advance=15,start_date='2020-03-26')
 
+    # Test các thuộc tính của phòng
     def test_room_no(self):
         room1 = Rooms.objects.get(room_no='300')
         room2 = Rooms.objects.get(room_no='301')
@@ -27,6 +29,7 @@ class RoomsTestCases(TestCase):
         self.assertEqual(room1.price, 3000)
         self.assertEqual(room2.price, 5000)
 class BookingTestCases(TestCase):
+    # Thiết lập dữ liệu test
     def setUp(self):
         RoomManager.objects.create(username='rahul')
         manager=RoomManager.objects.get(username='rahul')
@@ -39,6 +42,7 @@ class BookingTestCases(TestCase):
         Booking.objects.create(user_id=user,room_no=room,amount=10000,start_day='2020-03-10',end_day='2020-03-10')
         Booking.objects.create(user_id=user1,room_no=room,amount=5000,start_day='2020-03-26',end_day='2020-03-28')
 
+    # Test các thuộc tính của booking
     def test_booking_username(self):
         user=Customer.objects.get(username='vivek')
         booking1 = Booking.objects.get(user_id=user)
@@ -55,6 +59,7 @@ class BookingTestCases(TestCase):
         booking = Booking.objects.get(amount=5000)
         self.assertEqual(booking.room_no.manager.username, 'rahul')
 class IndexPageViewTest(TestCase):
+    # Test hiển thị trang index
     def setUp(self):
         self.client=Client()
         self.index_url=reverse('index')

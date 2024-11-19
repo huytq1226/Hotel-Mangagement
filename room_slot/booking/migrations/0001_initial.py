@@ -10,6 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Migration ban đầu tạo ra 3 model chính: Contact, Rooms và Booking
+
+        # Tạo model Contact để lưu thông tin liên hệ
         migrations.CreateModel(
             name='Contact',
             fields=[
@@ -19,6 +22,8 @@ class Migration(migrations.Migration):
                 ('message', models.TextField(max_length=2000)),
             ],
         ),
+        
+        # Tạo model Rooms với các thông tin cơ bản của phòng
         migrations.CreateModel(
             name='Rooms',
             fields=[
@@ -38,6 +43,8 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Rooms',
             },
         ),
+        
+        # Tạo model Booking để quản lý đặt phòng
         migrations.CreateModel(
             name='Booking',
             fields=[
