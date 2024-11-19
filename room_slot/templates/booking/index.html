@@ -4,6 +4,14 @@
 {% block content %}
 
 <div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="card-panel {{ message.tags }} lighten-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
     <!-- Header -->
     <div class="center-align header-section">
         <h4 class="blue-text title">Tìm phòng!</h4>

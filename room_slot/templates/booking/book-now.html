@@ -7,92 +7,95 @@
     
     <div class="row">
         <!-- Thông tin phòng -->
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Thông tin phòng</h4>
-                </div>
-                <div class="card-body">
-                    <div class="room-info mb-4">
-                        <h4>Thông tin phòng</h4>
+        <div class="col s12 m6">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title blue-text">Thông tin phòng</span>
+                    <div class="room-info">
                         <p><strong>Loại phòng:</strong> {{ data.room_type }}</p>
                         <p><strong>Số phòng:</strong> {{ room_no }}</p>
                         <p><strong>Quản lý:</strong> {{ roomManager }}</p>
-                        
-                        <!-- Phần rating -->
-                        <div class="rating-section mt-3">
-                            <h5>Đánh giá phòng</h5>
-                            <div class="d-flex align-items-center">
-                                <div class="stars me-2">
-                                    {% for i in '12345'|make_list %}
-                                        {% if forloop.counter <= rating %}
-                                            <i class="fas fa-star text-warning"></i>
-                                        {% else %}
-                                            <i class="far fa-star text-warning"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <span class="rating-text">({{ rating|floatformat:1 }}/5 từ {{ rating_count }} đánh giá)</span>
-                            </div>
-                        </div>
+                        <p><strong>Giá/đêm:</strong> ₫{{ data.price|floatformat:0|intcomma }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Thông tin đặt phòng -->
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Chi tiết đặt phòng</h4>
-                </div>
-                <div class="card-body">
-                    <div class="booking-details">
-                        <p><strong>Số đêm:</strong> {{ no_of_days }}</p>
-                        <p><strong>Ngày nhận phòng:</strong> {{ start }}</p>
-                        <p><strong>Ngày trả phòng:</strong> {{ end }}</p>
-                        <hr>
-                        <div class="price-details">
-                            <p><strong>Tổng tiền:</strong> <span class="text-primary">₫{{ bill|floatformat:0 }}</span></p>
-                            <p><strong>Đặt cọc (50%):</strong> <span class="text-success">₫{{ deposit|floatformat:0 }}</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Phương thức thanh toán -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Phương thức thanh toán</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'book_confirm' %}">
+        <!-- Chi tiết đặt phòng -->
+        <div class="col s12 m6">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title green-text">Chi tiết đặt phòng</span>
+                    <form id="booking-form" method="POST" action="{% url 'book_confirm' %}">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="payment_method" id="online" value="online" checked>
-                                <label class="form-check-label" for="online">Thanh toán online (Đặt cọc 50%)</label>
+                        
+                        <!-- Ngày nhận/trả phòng -->
+                        <div class="row">
+                            <div class="input-field col s12 m6">
+                                <i class="material-icons prefix">event</i>
+                                <input type="text" id="new_start_date" class="datepicker" value="{{ start }}" required>
+                                <label for="new_start_date">Ngày nhận phòng</label>
                             </div>
-                            <div class="payment-gateways ms-4 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_gateway" id="momo" value="momo" checked>
-                                    <label class="form-check-label" for="momo">MoMo</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_gateway" id="vnpay" value="vnpay">
-                                    <label class="form-check-label" for="vnpay">VNPay</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_gateway" id="zalopay" value="zalopay">
-                                    <label class="form-check-label" for="zalopay">ZaloPay</label>
-                                </div>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" id="offline" value="offline">
-                                <label class="form-check-label" for="offline">Thanh toán tại khách sạn</label>
+                            <div class="input-field col s12 m6">
+                                <i class="material-icons prefix">event_available</i>
+                                <input type="text" id="new_end_date" class="datepicker" value="{{ end }}" required>
+                                <label for="new_end_date">Ngày trả phòng</label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Xác nhận đặt phòng</button>
+
+                        <!-- Thông tin thanh toán -->
+                        <div class="price-details card-panel" {% if not has_dates %}style="display: none;"{% endif %}>
+                            <p><strong>Số đêm:</strong> <span id="nights">{{ no_of_days }}</span></p>
+                            <p><strong>Tổng tiền:</strong> ₫<span id="total_amount">{{ bill|floatformat:0 }}</span></p>
+                            <p><strong>Đặt cọc (50%):</strong> ₫<span id="deposit_amount">{{ deposit|floatformat:0 }}</span></p>
+                        </div>
+
+                        <!-- Phương thức thanh toán -->
+                        <div class="payment-section" {% if not has_dates %}style="display: none;"{% endif %}>
+                            <p>
+                                <label>
+                                    <input name="payment_method" type="radio" value="online" checked />
+                                    <span>Thanh toán online (Đặt cọc 50%)</span>
+                                </label>
+                            </p>
+                            <div id="online-gateways" class="ml-4">
+                                <p>
+                                    <label>
+                                        <input name="payment_gateway" type="radio" value="momo" checked />
+                                        <span>MoMo</span>
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <input name="payment_gateway" type="radio" value="vnpay" />
+                                        <span>VNPay</span>
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <input name="payment_gateway" type="radio" value="zalopay" />
+                                        <span>ZaloPay</span>
+                                    </label>
+                                </p>
+                            </div>
+                            <p>
+                                <label>
+                                    <input name="payment_method" type="radio" value="offline" />
+                                    <span>Thanh toán tại khách sạn</span>
+                                </label>
+                            </p>
+                        </div>
+
+                        <!-- Hidden inputs for form submission -->
+                        <input type="hidden" name="start_date" id="start_date" value="{{ start }}">
+                        <input type="hidden" name="end_date" id="end_date" value="{{ end }}">
+                        <input type="hidden" name="room_price" value="{{ data.price }}">
+
+                        <!-- Nút đặt phòng -->
+                        <button class="btn waves-effect waves-light green" type="submit" {% if not has_dates %}style="display: none;"{% endif %} id="submit-button">
+                            Xác nhận đặt phòng
+                            <i class="material-icons right">send</i>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -101,159 +104,106 @@
 </div>
 
 <style>
-    .card {
-        border: none;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .card-header {
-        border-bottom: none;
-        padding: 1rem;
-    }
-    .card-body {
-        padding: 1.5rem;
-    }
-    .star {
-        color: #ddd;
-        font-size: 20px;
-        padding: 0 2px;
-        transition: color 0.2s;
-    }
-    .star.active {
-        color: #ffc107;
-    }
-    .rate-now .star {
-        cursor: pointer;
-    }
-    .rate-now .star:hover,
-    .rate-now .star:hover ~ .star {
-        color: #ffc107;
-    }
-    .rating-text {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    .price-details {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-    }
-    .price-details p:last-child {
-        margin-bottom: 0;
-    }
-    .payment-gateways {
-        border-left: 2px solid #dee2e6;
-    }
-    .btn-primary {
-        padding: 0.8rem;
-        font-weight: 500;
-    }
-    .rating-section {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-    }
-    .stars i {
-        font-size: 18px;
-        margin-right: 2px;
-    }
-    .rating-text {
-        color: #666;
-        font-size: 0.9rem;
-    }
+.price-details {
+    background: #f5f5f5;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+#online-gateways {
+    margin-left: 30px;
+    padding-left: 10px;
+    border-left: 2px solid #e0e0e0;
+}
+
+.payment-section {
+    margin: 20px 0;
+}
+
+.card {
+    margin: 1rem 0;
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Khởi tạo select
-    var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems);
-
-    // Xử lý hiển thị/ẩn phần thanh toán online
-    var paymentSection = document.getElementById('online-payment-section');
-    var paymentMethods = document.getElementsByName('payment_method');
+    // Khởi tạo datepicker
+    var dateInputs = document.querySelectorAll('.datepicker');
+    var today = new Date();
     
-    function togglePaymentSection() {
-        var selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        paymentSection.style.display = selectedMethod === 'online' ? 'block' : 'none';
-        
-        // Thêm/xóa required cho select khi ẩn/hiện
-        var paymentGateway = document.querySelector('select[name="payment_gateway"]');
-        if (paymentGateway) {
-            paymentGateway.required = (selectedMethod === 'online');
+    var options = {
+        format: 'd/mmm/yyyy',
+        minDate: today,
+        showClearBtn: true,
+        autoClose: true,
+        onSelect: updateBookingDetails,
+        i18n: {
+            months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            weekdays: ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'],
+            weekdaysShort: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+            weekdaysAbbrev: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+            done: 'Chọn',
+            clear: 'Xóa',
+            cancel: 'Hủy'
         }
-    }
+    };
+
+    var instances = M.Datepicker.init(dateInputs, options);
+
+    // Xử lý hiển thị/ẩn phương thức thanh toán online
+    var paymentMethods = document.getElementsByName('payment_method');
+    var onlineGateways = document.getElementById('online-gateways');
 
     paymentMethods.forEach(function(method) {
-        method.addEventListener('change', togglePaymentSection);
+        method.addEventListener('change', function() {
+            onlineGateways.style.display = this.value === 'online' ? 'block' : 'none';
+        });
     });
 
-    // Khởi tạo hiển thị
-    togglePaymentSection();
-});
-</script>
+    // Hàm cập nhật chi tiết đặt phòng
+    function updateBookingDetails() {
+        var startDate = M.Datepicker.getInstance(document.getElementById('new_start_date')).date;
+        var endDate = M.Datepicker.getInstance(document.getElementById('new_end_date')).date;
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const stars = document.querySelectorAll('.rate-now .star');
-    const ratingSection = document.querySelector('.star-rating');
-    if (!ratingSection) return;
-    
-    const roomId = ratingSection.dataset.roomId;
-    
-    stars.forEach(star => {
-        star.addEventListener('click', async () => {
-            const rating = star.dataset.rating;
-            const formData = new FormData();
-            formData.append('rating', rating);
+        if (startDate && endDate) {
+            // Tính số đêm
+            var nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
             
-            try {
-                const response = await fetch(`/rate-room/${roomId}/`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                });
+            if (nights > 0) {
+                // Hiện các phần thông tin đặt phòng
+                document.querySelector('.price-details').style.display = 'block';
+                document.querySelector('.payment-section').style.display = 'block';
+                document.getElementById('submit-button').style.display = 'block';
                 
-                const data = await response.json();
-                if (data.success) {
-                    // Cập nhật hiển thị rating
-                    updateStars(rating);
-                    location.reload(); // Tải lại trang để cập nhật rating trung bình
-                } else {
-                    alert(data.error || 'Có lỗi xảy ra');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra');
-            }
-        });
-    });
-    
-    function updateStars(rating) {
-        stars.forEach(star => {
-            const starRating = parseInt(star.dataset.rating);
-            star.classList.toggle('active', starRating <= rating);
-        });
-    }
-    
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+                // Cập nhật hiển thị
+                document.getElementById('nights').textContent = nights;
+                
+                // Tính tổng tiền
+                var pricePerNight = parseFloat(document.querySelector('input[name="room_price"]').value);
+                var totalAmount = nights * pricePerNight;
+                var deposit = totalAmount * 0.5;
+
+                document.getElementById('total_amount').textContent = totalAmount.toLocaleString();
+                document.getElementById('deposit_amount').textContent = deposit.toLocaleString();
+
+                // Cập nhật hidden inputs
+                document.getElementById('start_date').value = formatDateForBackend(startDate);
+                document.getElementById('end_date').value = formatDateForBackend(endDate);
+            } else {
+                M.toast({html: 'Ngày trả phòng phải sau ngày nhận phòng'});
             }
         }
-        return cookieValue;
+    }
+
+    // Hàm format ngày cho backend
+    function formatDateForBackend(date) {
+        var day = date.getDate();
+        var month = date.toLocaleString('en-US', { month: 'short' });
+        var year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     }
 });
 </script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}

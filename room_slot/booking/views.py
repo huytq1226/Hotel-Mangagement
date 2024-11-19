@@ -3,9 +3,12 @@ from .models import Contact
 from .models import Rooms,Booking
 from login.models import Customer
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import datetime
 from django.db.models import Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     # Lấy tham số sắp xếp và tìm kiếm từ URL
@@ -78,106 +81,145 @@ def book(request):
         return redirect('index')
 
 def book_now(request, id):
-    if request.session.get("username",None) and request.session.get("type",None)=='customer':
-        if request.session.get("no_of_days",1):
-            try:
-                no_of_days = request.session['no_of_days']
-                start_date = request.session['start_date']
-                end_date = request.session['end_date']
-                request.session['room_no'] = id
-                
-                data = Rooms.objects.get(id=id)
-                
-                bill = data.price * int(no_of_days)
-                deposit = bill * 0.5  # 50% đặt cọc
-                
-                request.session['bill'] = bill
-                request.session['deposit'] = deposit
-                
-                # Xử lý trường hợp manager không tồn tại
-                try:
-                    roomManager = data.manager.username
-                except (Customer.DoesNotExist, AttributeError):
-                    roomManager = "Not assigned"
-                
-                return render(request, "booking/book-now.html", {
-                    "no_of_days": no_of_days,
-                    "room_no": data.room_no,
-                    "data": data,
-                    "bill": bill,
-                    "deposit": deposit,
-                    "roomManager": roomManager,
-                    "start": start_date,
-                    "end": end_date
-                })
-            except Rooms.DoesNotExist:
-                messages.error(request, "Phòng không tồn tại")
-                return redirect("index")
-        else:
-            return redirect("index")
-    else:
+    if not request.session.get("username"):
         next = "book-now/" + str(id)
         return redirect('user_login')
+        
+    if request.session.get("type") != 'customer':
+        return redirect('index')
+
+    try:
+        data = Rooms.objects.get(id=id)
+        
+        # Lưu room_no vào session
+        request.session['room_no'] = id
+        
+        # Lấy ngày từ session nếu có
+        start_date = request.session.get('start_date')
+        end_date = request.session.get('end_date')
+        no_of_days = request.session.get('no_of_days', 0)
+        
+        # Tính giá ban đầu
+        bill = data.price * int(no_of_days) if no_of_days else 0
+        deposit = bill * 0.5 if bill else 0
+        
+        # Lưu bill vào session
+        request.session['bill'] = bill
+        request.session['deposit'] = deposit
+        
+        try:
+            roomManager = data.manager.username
+        except (Customer.DoesNotExist, AttributeError):
+            roomManager = "Not assigned"
+        
+        context = {
+            "no_of_days": no_of_days,
+            "room_no": data.room_no,
+            "data": data,
+            "bill": bill,
+            "deposit": deposit,
+            "roomManager": roomManager,
+            "start": start_date,
+            "end": end_date,
+            "has_dates": bool(start_date and end_date)
+        }
+        
+        return render(request, "booking/book-now.html", context)
+        
+    except Rooms.DoesNotExist:
+        messages.error(request, "Phòng không tồn tại")
+        return redirect("index")
 
 def book_confirm(request):
     if request.method == "POST":
-        payment_method = request.POST.get('payment_method')
-        
-        room_no = request.session['room_no']
-        start_date = request.session['start_date']
-        end_date = request.session['end_date']
-        username = request.session['username']
-        user_id = Customer.objects.get(username=username)
-        room = Rooms.objects.get(id=room_no)
-        amount = request.session['bill']
-        
-        if payment_method == 'online':
-            payment_gateway = request.POST.get('payment_gateway')
-            deposit = request.session['deposit']
+        try:
+            payment_method = request.POST.get('payment_method')
             
-            # Xử lý thanh toán online tùy theo cổng thanh toán
-            if payment_gateway == 'momo':
-                # Tích hợp MoMo
-                pass
-            elif payment_gateway == 'vnpay':
-                # Tích hợp VNPay
-                pass
-            elif payment_gateway == 'zalopay':
-                # Tích hợp ZaloPay
-                pass
-        
-        # Lưu thông tin đặt phòng
-        booking = Booking(
-            room_no=room,
-            user_id=user_id,
-            start_day=datetime.datetime.strptime(start_date, "%d/%b/%Y").date(),
-            end_day=datetime.datetime.strptime(end_date, "%d/%b/%Y").date(),
-            amount=amount,
-            payment_method=payment_method,
-            payment_status='pending' if payment_method == 'offline' else 'partial'
-        )
-        booking.save()
-        
-        room.is_available = False
-        room.save()
-        
-        # Xóa session
-        for key in ['start_date', 'end_date', 'bill', 'room_no', 'deposit']:
-            if key in request.session:
-                del request.session[key]
-        
-        messages.success(request, "Đặt phòng thành công!")
-        return redirect('user_dashboard')
+            # Lấy dữ liệu từ session
+            room_no = request.session.get('room_no')
+            start_date = request.session.get('start_date')
+            end_date = request.session.get('end_date')
+            amount = request.session.get('bill')
+            
+            if not all([room_no, start_date, end_date, amount]):
+                messages.error(request, "Thiếu thông tin đặt phòng")
+                return redirect('index')
+            
+            username = request.session['username']
+            user_id = Customer.objects.get(username=username)
+            room = Rooms.objects.get(id=room_no)
+            
+            if payment_method == 'online':
+                payment_gateway = request.POST.get('payment_gateway')
+                deposit = request.session.get('deposit')
+                
+                # Xử lý thanh toán online tùy theo cổng thanh toán
+                if payment_gateway == 'momo':
+                    # Tích hợp MoMo
+                    pass
+                elif payment_gateway == 'vnpay':
+                    # Tích hợp VNPay
+                    pass
+                elif payment_gateway == 'zalopay':
+                    # Tích hợp ZaloPay
+                    pass
+            
+            # Lưu thông tin đặt phòng
+            booking = Booking(
+                room_no=room,
+                user_id=user_id,
+                start_day=datetime.datetime.strptime(start_date, "%d/%b/%Y").date(),
+                end_day=datetime.datetime.strptime(end_date, "%d/%b/%Y").date(),
+                amount=amount,
+                payment_method=payment_method,
+                payment_status='pending' if payment_method == 'offline' else 'partial'
+            )
+            booking.save()
+            
+            room.is_available = False
+            room.save()
+            
+            # Xóa session
+            for key in ['start_date', 'end_date', 'bill', 'room_no', 'deposit']:
+                if key in request.session:
+                    del request.session[key]
+            
+            messages.success(request, "Đặt phòng thành công!")
+            return redirect('user_dashboard')
+            
+        except Exception as e:
+            messages.error(request, f"Có lỗi xảy ra: {str(e)}")
+            return redirect('index')
     
     return redirect('index')
 
-def cancel_room(request,id):
-    data=Booking.objects.get(id=id)
-    room=data.room_no
-    room.is_available=True
-    room.save()
-    data.delete()
-    return HttpResponse("Booking Cancelled Successfully")
+def cancel_room(request, id):
+    try:
+        logger.debug(f"Attempting to cancel booking {id}")
+        data = Booking.objects.get(id=id)
+        
+        # Log thông tin booking
+        logger.debug(f"Booking found: {data}")
+        logger.debug(f"Current user: {request.session.get('username')}")
+        logger.debug(f"Booking user: {data.user_id.username}")
+        
+        # Kiểm tra xem người dùng có quyền hủy booking này không
+        if request.session.get('username') == data.user_id.username:
+            room = data.room_no
+            room.is_available = True
+            room.save()
+            data.delete()
+            logger.debug("Booking cancelled successfully")
+            return JsonResponse({'status': 'success', 'message': 'Đã hủy đặt phòng thành công'})
+        else:
+            logger.warning("Unauthorized cancellation attempt")
+            return JsonResponse({'status': 'error', 'message': 'Bạn không có quyền hủy đặt phòng này'})
+    except Booking.DoesNotExist:
+        logger.error(f"Booking {id} not found")
+        return JsonResponse({'status': 'error', 'message': 'Không tìm thấy booking'})
+    except Exception as e:
+        logger.error(f"Error cancelling booking: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': f'Lỗi: {str(e)}'})
 
 def delete_room(request,id):
     data=Rooms.objects.get(id=id)

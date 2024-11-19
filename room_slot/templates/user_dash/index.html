@@ -70,23 +70,77 @@ Sorry You haven't booked any room so far.
 </div>
     </div>
     <script>
-    cancel_btn=document.querySelectorAll(".cancel-btn")
-    cancel_btn.forEach((data)=>{
-  data.addEventListener("click",(e)=>
-    { 
-      e.preventDefault()
-      id=e.target.id
-   var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
- console.log(xhttp.responseText)
-       document.getElementById("message").innerHTML = "<div class='chip green white-text'>"+xhttp.responseText+"</div>";
-       window.setTimeout(function(){location.reload()},1000)
-    }
-};
-xhttp.open("GET", "/cancel-room/"+id, true);
-xhttp.send();
-    })
-    })
+    document.addEventListener('DOMContentLoaded', function() {
+        var cancelButtons = document.querySelectorAll(".cancel-btn");
+        
+        cancelButtons.forEach(function(button) {
+            button.addEventListener("click", function(e) {
+                e.preventDefault();
+                
+                if (confirm('Bạn có chắc chắn muốn hủy đặt phòng này?')) {
+                    var bookingId = this.getAttribute('id');
+                    
+                    // Thêm CSRF token vào header
+                    const csrftoken = getCookie('csrftoken');
+                    
+                    fetch('/cancel-room/' + bookingId, {
+                        headers: {
+                            'X-CSRFToken': csrftoken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data); // Debug log
+                        if (data.status === 'success') {
+                            // Hiển thị thông báo thành công
+                            var messageDiv = document.getElementById("message");
+                            messageDiv.innerHTML = `<div class='chip green white-text'>${data.message}</div>`;
+                            
+                            // Reload trang sau 1 giây
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            // Hiển thị thông báo lỗi
+                            var messageDiv = document.getElementById("message");
+                            messageDiv.innerHTML = `<div class='chip red white-text'>${data.message}</div>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error); // Debug log
+                        var messageDiv = document.getElementById("message");
+                        messageDiv.innerHTML = "<div class='chip red white-text'>Có lỗi xảy ra khi hủy đặt phòng</div>";
+                    });
+                }
+            });
+        });
+
+        // Hàm lấy CSRF token từ cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
     </script>
+    <style>
+    .chip {
+        margin: 10px 0;
+    }
+    .chip.green {
+        background-color: #4CAF50;
+    }
+    .chip.red {
+        background-color: #F44336;
+    }
+    </style>
 {% endblock %}
