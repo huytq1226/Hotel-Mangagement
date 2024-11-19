@@ -17,8 +17,13 @@ class Rooms(models.Model):
     is_available = models.BooleanField(default=True)  # Trạng thái phòng
     price = models.FloatField()                     # Giá phòng
     no_of_days_advance = models.IntegerField()      # Số ngày có thể đặt trước
-    start_date = models.DateField()                 # Ngày bắt đầu cho thuê
-    room_image = models.ImageField(upload_to="media", blank=True)  # Ảnh phòng
+    start_date = models.DateField(null=True)        # Ngày bắt đầu cho thuê
+    room_image = models.ImageField(
+        upload_to="media", 
+        blank=True,
+        null=True,
+        default='media/default_room.jpg'
+    )
     def __str__(self):
         return "Room No: "+str(self.room_no)
 

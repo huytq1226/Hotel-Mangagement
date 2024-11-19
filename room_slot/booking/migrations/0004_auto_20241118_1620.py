@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rooms',
             name='manager',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='login.Customer'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='login.RoomManager'),
         ),
         # Cho phép start_date có thể null
         migrations.AlterField(
