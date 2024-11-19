@@ -101,6 +101,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Thêm phần đánh giá và bình luận -->
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title blue-text">Đánh giá từ khách hàng</span>
+                    
+                    <!-- Thống kê đánh giá -->
+                    <div class="rating-statistics">
+                        <div class="row">
+                            <div class="col s12 m6">
+                                {% for criteria in ratings %}
+                                <div class="rating-criteria">
+                                    <div class="criteria-name">{{ criteria.name }}</div>
+                                    <div class="progress">
+                                        <div class="determinate" style="width: {{ criteria.score }}0%"></div>
+                                    </div>
+                                    <div class="criteria-score">{{ criteria.score }}/10</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col s12 m6">
+                                <div class="rating-summary center-align">
+                                    <h2 class="total-score">8.5</h2>
+                                    <p class="rating-text">Rất tốt</p>
+                                    <p class="total-reviews">Dựa trên 48 đánh giá</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phần bình luận -->
+                    <div class="reviews-section">
+                        <h5>Nhận xét từ khách hàng</h5>
+                        <div class="review-list">
+                            {% for review in reviews %}
+                            <div class="review-item">
+                                <div class="reviewer-info">
+                                    <i class="material-icons circle">person</i>
+                                    <span class="reviewer-name">{{ review.name }}</span>
+                                    <span class="review-date">{{ review.date }}</span>
+                                </div>
+                                <div class="review-content">
+                                    <p>{{ review.content }}</p>
+                                </div>
+                                <div class="divider"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -123,6 +178,100 @@
 
 .card {
     margin: 1rem 0;
+}
+
+/* Style cho phần rating */
+.rating-criteria {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.criteria-name {
+    width: 120px;
+    font-size: 0.9rem;
+}
+
+.progress {
+    flex-grow: 1;
+    margin: 0;
+    height: 8px;
+    background-color: #f5f5f5;
+}
+
+.progress .determinate {
+    background-color: #2196F3;
+}
+
+.criteria-score {
+    width: 50px;
+    text-align: right;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.rating-summary {
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.total-score {
+    font-size: 3rem;
+    color: #2196F3;
+    margin: 0;
+}
+
+.rating-text {
+    font-size: 1.2rem;
+    color: #4CAF50;
+    margin: 5px 0;
+}
+
+.total-reviews {
+    color: #757575;
+    font-size: 0.9rem;
+}
+
+/* Style cho phần reviews */
+.reviews-section {
+    margin-top: 30px;
+}
+
+.review-item {
+    margin: 20px 0;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.reviewer-info .material-icons {
+    background-color: #e0e0e0;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.reviewer-name {
+    font-weight: bold;
+}
+
+.review-date {
+    color: #757575;
+    font-size: 0.9rem;
+}
+
+.review-content {
+    margin: 10px 0;
+    color: #424242;
+}
+
+.divider {
+    margin: 15px 0;
 }
 </style>
 
@@ -204,6 +353,59 @@ document.addEventListener('DOMContentLoaded', function() {
         var year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
+
+    // Dữ liệu mẫu cho ratings
+    const ratings = [
+        { name: 'Nhân viên phục vụ', score: 9 },
+        { name: 'Tiện nghi', score: 8 },
+        { name: 'Sạch sẽ', score: 9 },
+        { name: 'Thoải mái', score: 8 },
+        { name: 'Đáng giá tiền', score: 8 },
+        { name: 'Địa điểm', score: 9 },
+        { name: 'WiFi miễn phí', score: 8 }
+    ];
+
+    // Dữ liệu mẫu cho reviews
+    const reviews = [
+        {
+            name: 'Nguyễn Văn A',
+            date: '15/03/2024',
+            content: 'Phòng sạch sẽ, gần chợ nên đi lại mua đồ cx rất tiện, nhân viên nhiệt tình gần gũi'
+        },
+        {
+            name: 'Trần Thị B',
+            date: '10/03/2024',
+            content: 'Phòng sạch sẽ, vị trí dễ tìm. Chị chủ take care tốt'
+        }
+    ];
+
+    // Render ratings
+    const ratingsHtml = ratings.map(rating => `
+        <div class="rating-criteria">
+            <div class="criteria-name">${rating.name}</div>
+            <div class="progress">
+                <div class="determinate" style="width: ${rating.score}0%"></div>
+            </div>
+            <div class="criteria-score">${rating.score}/10</div>
+        </div>
+    `).join('');
+    document.querySelector('.col.s12.m6').innerHTML = ratingsHtml;
+
+    // Render reviews
+    const reviewsHtml = reviews.map(review => `
+        <div class="review-item">
+            <div class="reviewer-info">
+                <i class="material-icons circle">person</i>
+                <span class="reviewer-name">${review.name}</span>
+                <span class="review-date">${review.date}</span>
+            </div>
+            <div class="review-content">
+                <p>${review.content}</p>
+            </div>
+            <div class="divider"></div>
+        </div>
+    `).join('');
+    document.querySelector('.review-list').innerHTML = reviewsHtml;
 });
 </script>
 {% endblock %}
