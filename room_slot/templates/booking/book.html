@@ -11,7 +11,23 @@
     <div class="container">
         {% if data %}
     <h3 class="center" style="font-family: 'Oregano', cursive;margin-bottom:7%;margin-top:5%" >Chỉ còn 1 bước nữa...</h3>
-
+    <form method="POST">
+        {% csrf_token %}
+        <label for="sort_by">Sắp xếp theo:</label>
+        <select name="sort_by" id="sort_by">
+            <option value="name">Tên</option>
+            <option value="price">Giá</option>
+        </select>
+        
+        <label for="order">Thứ tự:</label>
+        <select name="order" id="order">
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+        </select>
+        
+        <button type="submit">Sắp xếp</button>
+    </form>
+    
         {% for  room in  data %}
            <div class="col l4 m6 s12">
             <div class="card">

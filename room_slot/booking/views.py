@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     # Lấy tham số sắp xếp và tìm kiếm từ URL
+    search_query = request.GET.get('q', '').strip()
     sort_by = request.GET.get('sort', 'room_type')
     order = request.GET.get('order', 'asc')
     min_price = request.GET.get('min_price')
@@ -26,6 +27,10 @@ def index(request):
     if max_price:
         rooms = rooms.filter(price__lte=float(max_price))
 
+    # Thêm logic tìm kiếm theo tên khách sạn
+    if search_query:
+        rooms = rooms.filter(Q(hotel_name__icontains=search_query))
+    
     # Xử lý sắp xếp
     if sort_by == 'price':
         if order == 'desc':
@@ -37,13 +42,16 @@ def index(request):
             rooms = rooms.order_by('-room_type')
         else:
             rooms = rooms.order_by('room_type')
+    
+    rooms = rooms.order_by('price')
 
     context = {
         'rooms': rooms,
         'current_sort': sort_by,
         'current_order': order,
         'min_price': min_price or '',
-        'max_price': max_price or ''
+        'max_price': max_price or '',
+        'search_query': search_query,
     }
     return render(request, 'booking/index.html', context)
 
@@ -68,12 +76,19 @@ def book(request):
         end_date=datetime.datetime.strptime(end_date, "%d/%b/%Y").date()
         no_of_days=(end_date-start_date).days
         
+        #Lấy tiêu chí sắp xếp từ request (nếu có), mặc định là theo tên
+        sort_by = request.POST.get('sort_by', 'name')
+        order_direction = request.POST.get('order', 'asc')
+        
+        #Them dieu kien sap xep
+        order_field = sort_by if order_direction == 'asc' else f"-{sort_by}"
+        
         # Thay đổi cách lấy dữ liệu, không dùng values()
         data = Rooms.objects.filter(
             is_available=True,
             no_of_days_advance__gte=no_of_days,
             start_date__lte=start_date
-        ).select_related('manager')
+        ).select_related('manager').order_by('-price')
         
         request.session['no_of_days']=no_of_days
         return render(request,'booking/book.html',{

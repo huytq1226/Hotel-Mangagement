@@ -23,6 +23,24 @@
         <div class="col s12">
             <div class="card search-card">
                 <div class="card-content">
+                    <div class="price-search">
+                        <h5 class="search-title">
+                            <i class="material-icons">attach_money</i>
+                            Khoảng giá
+                        </h5>
+                        <form method="get" action="{% url 'index' %}" class="search-form">
+                            <input
+                                type="text"
+                                name="q"
+                                value="{{ search_query }}"
+                                placeholder="Tìm kiếm khách sạn..."
+                                class="search-input"
+                            />
+                            <button type="submit" class="btn waves-effect">Tìm kiếm</button>
+                        </form>
+                        
+                    </div>
+
                     <!-- Price Range Search -->
                     <div class="price-search">
                         <h5 class="search-title">
